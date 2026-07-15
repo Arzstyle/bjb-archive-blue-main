@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Loader2, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo } from "react";
+import { ArrowUpDown } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -20,6 +21,8 @@ export const Route = createFileRoute("/_authenticated/activity-log")({
 
 function ActivityLog() {
   const [search, setSearch] = useState("");
+  const [actionFilter, setActionFilter] = useState("ALL");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -38,6 +41,11 @@ function ActivityLog() {
 
   const filteredLogs = useMemo(() => {
     let result = logs || [];
+    
+    if (actionFilter !== "ALL") {
+      result = result.filter(log => log.action === actionFilter);
+    }
+    
     if (search.trim()) {
       const s = search.toLowerCase();
       result = result.filter(
@@ -47,8 +55,27 @@ function ActivityLog() {
           (log.details ?? "").toLowerCase().includes(s),
       );
     }
+    
+    if (sortConfig) {
+      result = [...result].sort((a, b) => {
+        let aVal = a[sortConfig.key as keyof typeof a] || "";
+        let bVal = b[sortConfig.key as keyof typeof b] || "";
+        if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    
     return result;
-  }, [logs, search]);
+  }, [logs, search, actionFilter, sortConfig]);
+
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
 
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / itemsPerPage));
   const currentLogs = filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -77,24 +104,43 @@ function ActivityLog() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold sm:text-3xl">Log Aktifitas</h1>
+        <h1 className="text-2xl font-bold sm:text-3xl">Log Aktivitas</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Pantau riwayat login, unggah, ubah, dan hapus berkas dari seluruh pengguna.
         </p>
       </div>
 
       <Card className="p-4">
-        <div className="relative max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Cari username, aksi, atau detail..."
-            value={search}
+        <div className="flex flex-col sm:flex-row gap-4 max-w-2xl">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Cari username, aksi, atau detail..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-9"
+            />
+          </div>
+          <select
+            value={actionFilter}
             onChange={(e) => {
-              setSearch(e.target.value);
+              setActionFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="pl-9"
-          />
+            className="flex h-10 w-full sm:w-48 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="ALL">Semua Aksi</option>
+            <option value="LOGIN">Login</option>
+            <option value="UPLOAD">Unggah</option>
+            <option value="EDIT">Ubah</option>
+            <option value="MOVE">Pindah</option>
+            <option value="DELETE">Hapus</option>
+            <option value="VIEW">Akses/Lihat</option>
+            <option value="DOWNLOAD">Unduh</option>
+          </select>
         </div>
       </Card>
 
@@ -113,9 +159,15 @@ function ActivityLog() {
               <table className="w-full text-sm">
                 <thead className="bg-muted/60 text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
-                    <th className="px-4 py-3 text-left">Waktu</th>
-                    <th className="px-4 py-3 text-left">Pengguna</th>
-                    <th className="px-4 py-3 text-left">Aksi</th>
+                    <th className="px-4 py-3 text-left cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort("created_at")}>
+                      <div className="flex items-center gap-1">Waktu <ArrowUpDown className="h-3 w-3" /></div>
+                    </th>
+                    <th className="px-4 py-3 text-left cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort("username")}>
+                      <div className="flex items-center gap-1">Pengguna <ArrowUpDown className="h-3 w-3" /></div>
+                    </th>
+                    <th className="px-4 py-3 text-left cursor-pointer hover:bg-muted/80 transition-colors" onClick={() => handleSort("action")}>
+                      <div className="flex items-center gap-1">Aksi <ArrowUpDown className="h-3 w-3" /></div>
+                    </th>
                     <th className="px-4 py-3 text-left">Detail</th>
                   </tr>
                 </thead>

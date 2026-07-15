@@ -160,7 +160,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             >
               <Activity className="h-4 w-4" />
-              Log Aktifitas
+              Log Aktivitas
             </Link>
           </nav>
 
