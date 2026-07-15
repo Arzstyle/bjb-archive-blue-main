@@ -311,7 +311,7 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
           user_id: profile!.userId,
           username: profile!.username,
           action: "EDIT",
-          details: `Mengubah nama folder dari "${args.oldName}" menjadi "${args.newName.trim()}" di menu ${menuLabel(menu)}`,
+          details: `Mengubah nama folder dari "${args.oldName}" menjadi "${args.newName.trim()}" di menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
         });
       } else {
         const updateData = args.fieldToUpdate === "title" 
@@ -326,7 +326,7 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
           user_id: profile!.userId,
           username: profile!.username,
           action: "EDIT",
-          details: `Mengubah nama file dari "${args.oldName}" menjadi "${args.newName.trim()}" di menu ${menuLabel(menu)}`,
+          details: `Mengubah nama file dari "${args.oldName}" menjadi "${args.newName.trim()}" di menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
         });
       }
     },
@@ -350,7 +350,7 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
         user_id: profile!.userId,
         username: profile!.username,
         action: "MOVE",
-        details: `Memindahkan file ke folder "${args.newTitle.trim()}" di menu ${menuLabel(menu)}`,
+        details: `Memindahkan file ke folder "${args.newTitle.trim()}" di menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
       });
     },
     onSuccess: () => {
@@ -389,7 +389,7 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
           user_id: profile!.userId,
           username: profile!.username,
           action: "DELETE",
-          details: `Memindahkan folder "${row.title}" ke sampah di menu ${menuLabel(menu)}`,
+          details: `Memindahkan folder "${row.title}" ke sampah di menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
         });
       } else {
         let { error } = await supabase
@@ -412,7 +412,7 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
           user_id: profile!.userId,
           username: profile!.username,
           action: "DELETE",
-          details: `Memindahkan file "${row.file_name}" ke sampah di menu ${menuLabel(menu)}`,
+          details: `Memindahkan file "${row.file_name}" ke sampah di menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
         });
       }
     },
@@ -444,7 +444,7 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
       user_id: profile!.userId,
       username: profile!.username,
       action: mode === "download" ? "DOWNLOAD" : "VIEW",
-      details: `${mode === "download" ? "Mengunduh" : "Membuka"} file "${row.file_name}" di menu ${menuLabel(menu)}`,
+      details: `${mode === "download" ? "Mengunduh" : "Membuka"} file "${row.file_name}" di menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
     });
     if (mode === "download") {
       window.location.href = data.signedUrl;
