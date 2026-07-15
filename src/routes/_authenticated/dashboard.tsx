@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   FileSearch, Wallet, ArrowLeftRight, Banknote, ShieldCheck, Landmark, CheckCircle2,
-  type LucideIcon, FileText, HardDrive, Layers, Clock, Trash2,
+  type LucideIcon, FileText, HardDrive, Layers, Clock, Trash2, Folder,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -29,7 +29,7 @@ function DashboardPage() {
     queryFn: async () => {
       let { data, error } = await supabase
         .from("documents")
-        .select("id, menu, file_size, created_at")
+        .select("id, menu, file_size, created_at, mime_type")
         .is("deleted_at", null)
         .order("created_at", { ascending: false });
         
@@ -37,23 +37,23 @@ function DashboardPage() {
         // Fallback if deleted_at column doesn't exist yet
         const fallback = await supabase
           .from("documents")
-          .select("id, menu, file_size, created_at")
+          .select("id, menu, file_size, created_at, mime_type")
           .order("created_at", { ascending: false });
         data = fallback.data;
         error = fallback.error;
       }
 
       if (error) throw error;
-      if (!data) return { total: 0, size: 0, menus: 0, latest: null, byMenu: {} };
-      const total = data.length;
+      if (!data) return { totalFiles: 0, totalFolders: 0, size: 0, latest: null, byMenu: {} };
+      const totalFiles = data.filter((d) => d.mime_type !== "folder").length;
+      const totalFolders = data.filter((d) => d.mime_type === "folder").length;
       const size = data.reduce((s, d) => s + Number(d.file_size ?? 0), 0);
-      const menus = new Set(data.map((d) => d.menu)).size;
       const latest = data[0]?.created_at ?? null;
       const byMenu = data.reduce<Record<string, number>>((acc, d) => {
         acc[d.menu] = (acc[d.menu] ?? 0) + 1;
         return acc;
       }, {});
-      return { total, size, menus, latest, byMenu };
+      return { totalFiles, totalFolders, size, latest, byMenu };
     },
   });
 
@@ -91,8 +91,8 @@ function DashboardPage() {
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard icon={FileText} label="Total Berkas" value={stats.data?.total ?? "—"} />
-        <StatCard icon={Layers} label="Menu Aktif" value={stats.data?.menus ?? "—"} />
+        <StatCard icon={FileText} label="Total Berkas" value={stats.data?.totalFiles ?? "—"} />
+        <StatCard icon={Folder} label="Total Folder" value={stats.data?.totalFolders ?? "—"} />
         <StatCard
           icon={HardDrive}
           label="Total Ukuran"
