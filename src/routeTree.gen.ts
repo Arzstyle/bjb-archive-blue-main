@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTrashRouteImport } from './routes/_authenticated/trash'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedActivityLogRouteImport } from './routes/_authenticated/activity-log'
 import { Route as ApiPublicSeedRouteImport } from './routes/api/public/seed'
 import { Route as AuthenticatedDocsMenuRouteImport } from './routes/_authenticated/docs.$menu'
 
@@ -41,6 +42,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedActivityLogRoute =
+  AuthenticatedActivityLogRouteImport.update({
+    id: '/activity-log',
+    path: '/activity-log',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicSeedRoute = ApiPublicSeedRouteImport.update({
   id: '/api/public/seed',
   path: '/api/public/seed',
@@ -55,6 +62,7 @@ const AuthenticatedDocsMenuRoute = AuthenticatedDocsMenuRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/activity-log': typeof AuthenticatedActivityLogRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/trash': typeof AuthenticatedTrashRoute
   '/docs/$menu': typeof AuthenticatedDocsMenuRoute
@@ -63,6 +71,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/activity-log': typeof AuthenticatedActivityLogRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/trash': typeof AuthenticatedTrashRoute
   '/docs/$menu': typeof AuthenticatedDocsMenuRoute
@@ -73,6 +82,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/activity-log': typeof AuthenticatedActivityLogRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/trash': typeof AuthenticatedTrashRoute
   '/_authenticated/docs/$menu': typeof AuthenticatedDocsMenuRoute
@@ -81,15 +91,28 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/dashboard' | '/trash' | '/docs/$menu' | '/api/public/seed'
+    | '/'
+    | '/auth'
+    | '/activity-log'
+    | '/dashboard'
+    | '/trash'
+    | '/docs/$menu'
+    | '/api/public/seed'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/auth' | '/dashboard' | '/trash' | '/docs/$menu' | '/api/public/seed'
+    | '/'
+    | '/auth'
+    | '/activity-log'
+    | '/dashboard'
+    | '/trash'
+    | '/docs/$menu'
+    | '/api/public/seed'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/activity-log'
     | '/_authenticated/dashboard'
     | '/_authenticated/trash'
     | '/_authenticated/docs/$menu'
@@ -140,6 +163,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/activity-log': {
+      id: '/_authenticated/activity-log'
+      path: '/activity-log'
+      fullPath: '/activity-log'
+      preLoaderRoute: typeof AuthenticatedActivityLogRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/seed': {
       id: '/api/public/seed'
       path: '/api/public/seed'
@@ -158,12 +188,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedActivityLogRoute: typeof AuthenticatedActivityLogRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedTrashRoute: typeof AuthenticatedTrashRoute
   AuthenticatedDocsMenuRoute: typeof AuthenticatedDocsMenuRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedActivityLogRoute: AuthenticatedActivityLogRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedTrashRoute: AuthenticatedTrashRoute,
   AuthenticatedDocsMenuRoute: AuthenticatedDocsMenuRoute,
@@ -181,13 +213,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

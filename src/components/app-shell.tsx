@@ -15,6 +15,7 @@ import {
   Landmark,
   CheckCircle2,
   Trash2,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -148,6 +149,19 @@ export function AppShell({ children }: { children: ReactNode }) {
               Lainnya
             </div>
             <TrashLink pathname={pathname} onClick={() => setMobileOpen(false)} role={profile.role} />
+            <Link
+              to="/activity-log"
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                pathname === "/activity-log"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  : "hover:bg-sidebar-accent",
+              )}
+            >
+              <Activity className="h-4 w-4" />
+              Log Aktifitas
+            </Link>
           </nav>
 
           <button

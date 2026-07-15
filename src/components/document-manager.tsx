@@ -305,9 +305,14 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
           .from("documents")
           .update({ title: args.newName.trim(), file_name: args.newName.trim() })
           .eq("menu", menu)
-          .eq("division", effectiveDivision)
           .eq("title", args.oldName);
         if (error) throw error;
+        await supabase.from("activity_logs").insert({
+          user_id: profile!.userId,
+          username: profile!.username,
+          action: "EDIT",
+          details: `Mengubah nama folder dari "${args.oldName}" menjadi "${args.newName.trim()}" di menu ${menuLabel(menu)}`,
+        });
       } else {
         const updateData = args.fieldToUpdate === "title" 
           ? { title: args.newName.trim() }
@@ -317,6 +322,12 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
           .update(updateData)
           .eq("id", args.id!);
         if (error) throw error;
+        await supabase.from("activity_logs").insert({
+          user_id: profile!.userId,
+          username: profile!.username,
+          action: "EDIT",
+          details: `Mengubah nama file dari "${args.oldName}" menjadi "${args.newName.trim()}" di menu ${menuLabel(menu)}`,
+        });
       }
     },
     onSuccess: () => {
@@ -335,6 +346,12 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
         .update({ title: args.newTitle.trim() })
         .eq("id", args.id);
       if (error) throw error;
+      await supabase.from("activity_logs").insert({
+        user_id: profile!.userId,
+        username: profile!.username,
+        action: "MOVE",
+        details: `Memindahkan file ke folder "${args.newTitle.trim()}" di menu ${menuLabel(menu)}`,
+      });
     },
     onSuccess: () => {
       toast.success("Berhasil memindahkan file");
@@ -368,6 +385,12 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
         }
         
         if (error) throw error;
+        await supabase.from("activity_logs").insert({
+          user_id: profile!.userId,
+          username: profile!.username,
+          action: "DELETE",
+          details: `Memindahkan folder "${row.title}" ke sampah di menu ${menuLabel(menu)}`,
+        });
       } else {
         let { error } = await supabase
           .from("documents")
@@ -385,6 +408,12 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
         }
         
         if (error) throw error;
+        await supabase.from("activity_logs").insert({
+          user_id: profile!.userId,
+          username: profile!.username,
+          action: "DELETE",
+          details: `Memindahkan file "${row.file_name}" ke sampah di menu ${menuLabel(menu)}`,
+        });
       }
     },
     onSuccess: () => {
@@ -410,6 +439,13 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
       toast.error("Gagal membuka file");
       return;
     }
+    
+    await supabase.from("activity_logs").insert({
+      user_id: profile!.userId,
+      username: profile!.username,
+      action: mode === "download" ? "DOWNLOAD" : "VIEW",
+      details: `${mode === "download" ? "Mengunduh" : "Membuka"} file "${row.file_name}" di menu ${menuLabel(menu)}`,
+    });
     if (mode === "download") {
       window.location.href = data.signedUrl;
     } else if (mode === "print") {
@@ -983,6 +1019,13 @@ function UploadDialog({
           uploader_username: uploader.username,
         });
         if (insErr) throw insErr;
+        
+        await supabase.from("activity_logs").insert({
+          user_id: uploader.id,
+          username: uploader.username,
+          action: "UPLOAD",
+          details: `Membuat folder: ${title.trim()} di menu ${menuLabel(menu)} (${divisionLabel(division)})`,
+        });
       } else {
         if (files.length === 0) throw new Error("Pilih file terlebih dahulu");
         for (const f of files) {
@@ -1008,6 +1051,13 @@ function UploadDialog({
             await supabase.storage.from("documents").remove([path]);
             throw insErr;
           }
+
+          await supabase.from("activity_logs").insert({
+            user_id: uploader.id,
+            username: uploader.username,
+            action: "UPLOAD",
+            details: `Mengunggah file: ${f.name} ke menu ${menuLabel(menu)} (${divisionLabel(division)})`,
+          });
         }
       }
     },

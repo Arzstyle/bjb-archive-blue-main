@@ -48,15 +48,24 @@ function AuthPage() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: usernameToEmail(u),
       password,
     });
     setLoading(false);
-    if (error) {
+    if (error || !data.user) {
       toast.error("Username atau password salah.");
       return;
     }
+    
+    // Record login activity
+    await supabase.from("activity_logs").insert({
+      user_id: data.user.id,
+      username: u,
+      action: "LOGIN",
+      details: "Pengguna berhasil masuk ke sistem",
+    });
+
     toast.success("Berhasil masuk");
     navigate({ to: "/dashboard", replace: true });
   }
