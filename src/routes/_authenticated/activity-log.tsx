@@ -22,6 +22,8 @@ export const Route = createFileRoute("/_authenticated/activity-log")({
 function ActivityLog() {
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState("ALL");
+  const [userFilter, setUserFilter] = useState("ALL");
+  const [dateFilter, setDateFilter] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
@@ -39,11 +41,31 @@ function ActivityLog() {
     },
   });
 
+  const uniqueUsers = useMemo(() => {
+    if (!logs) return [];
+    return Array.from(new Set(logs.map((l) => l.username))).sort();
+  }, [logs]);
+
   const filteredLogs = useMemo(() => {
     let result = logs || [];
     
     if (actionFilter !== "ALL") {
       result = result.filter(log => log.action === actionFilter);
+    }
+    
+    if (userFilter !== "ALL") {
+      result = result.filter(log => log.username === userFilter);
+    }
+    
+    if (dateFilter) {
+      result = result.filter(log => {
+        // created_at is an ISO string or can be passed to Date
+        const logDate = new Date(log.created_at);
+        // Format to local date string matching input type="date" (YYYY-MM-DD)
+        const tzOffset = logDate.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(logDate.getTime() - tzOffset)).toISOString().split('T')[0];
+        return localISOTime === dateFilter;
+      });
     }
     
     if (search.trim()) {
@@ -67,7 +89,7 @@ function ActivityLog() {
     }
     
     return result;
-  }, [logs, search, actionFilter, sortConfig]);
+  }, [logs, search, actionFilter, userFilter, dateFilter, sortConfig]);
 
   const handleSort = (key: string) => {
     let direction: "asc" | "desc" = "asc";
@@ -111,8 +133,8 @@ function ActivityLog() {
       </div>
 
       <Card className="p-4">
-        <div className="flex flex-col sm:flex-row gap-4 max-w-2xl">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+          <div className="relative flex-1 min-w-[200px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Cari username, aksi, atau detail..."
@@ -125,12 +147,25 @@ function ActivityLog() {
             />
           </div>
           <select
+            value={userFilter}
+            onChange={(e) => {
+              setUserFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="flex h-10 w-full sm:w-40 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="ALL">Semua Pengguna</option>
+            {uniqueUsers.map((u) => (
+              <option key={u} value={u}>{u}</option>
+            ))}
+          </select>
+          <select
             value={actionFilter}
             onChange={(e) => {
               setActionFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="flex h-10 w-full sm:w-48 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-10 w-full sm:w-40 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="ALL">Semua Aksi</option>
             <option value="LOGIN">Login</option>
@@ -141,6 +176,15 @@ function ActivityLog() {
             <option value="VIEW">Akses/Lihat</option>
             <option value="DOWNLOAD">Unduh</option>
           </select>
+          <Input
+            type="date"
+            value={dateFilter}
+            onChange={(e) => {
+              setDateFilter(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full sm:w-auto"
+          />
         </div>
       </Card>
 
