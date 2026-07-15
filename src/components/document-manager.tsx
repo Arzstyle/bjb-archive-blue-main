@@ -1028,6 +1028,12 @@ function UploadDialog({
         });
       } else {
         if (files.length === 0) throw new Error("Pilih file terlebih dahulu");
+        
+        const oversized = files.find(f => f.size > 50 * 1024 * 1024);
+        if (oversized) {
+          throw new Error(`Ukuran file "${oversized.name}" melebihi batas maksimal 50MB.`);
+        }
+        
         for (const f of files) {
           const safeName = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
           const path = `${menu}/${division}/${crypto.randomUUID()}-${safeName}`;
@@ -1149,7 +1155,21 @@ function UploadDialog({
               id="file"
               ref={inputRef}
               type="file"
-              onChange={(e) => setFiles(e.target.files ? Array.from(e.target.files) : [])}
+              onChange={(e) => {
+                if (e.target.files) {
+                  const selectedFiles = Array.from(e.target.files);
+                  const oversized = selectedFiles.find(f => f.size > 50 * 1024 * 1024);
+                  if (oversized) {
+                    toast.error(`Ukuran file melebihi 50MB`, { description: `File "${oversized.name}" tidak dapat diproses.` });
+                    if (inputRef.current) inputRef.current.value = "";
+                    setFiles([]);
+                    return;
+                  }
+                  setFiles(selectedFiles);
+                } else {
+                  setFiles([]);
+                }
+              }}
               required
             />
             {files.length > 0 && (
