@@ -26,7 +26,7 @@ function ActivityLog() {
   const [dateFilter, setDateFilter] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const itemsPerPage = 15;
 
   const { data: logs, isLoading } = useQuery({
     queryKey: ["activity-logs"],
@@ -101,6 +101,22 @@ function ActivityLog() {
 
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / itemsPerPage));
   const currentLogs = filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
 
   const formatAction = (action: string) => {
     switch (action) {
@@ -249,9 +265,17 @@ function ActivityLog() {
                         className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                       />
                     </PaginationItem>
-                    <PaginationItem>
-                      <span className="text-sm px-4">Halaman {currentPage} dari {totalPages}</span>
-                    </PaginationItem>
+                    {getPageNumbers().map(pageNum => (
+                      <PaginationItem key={pageNum}>
+                        <PaginationLink 
+                          onClick={() => setCurrentPage(pageNum)}
+                          isActive={currentPage === pageNum}
+                          className="cursor-pointer"
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
                     <PaginationItem>
                       <PaginationNext 
                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
