@@ -326,7 +326,7 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
           user_id: profile!.userId,
           username: profile!.username,
           action: "EDIT",
-          details: `Mengubah nama file dari "${args.oldName}" menjadi "${args.newName.trim()}" di menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
+          details: `Mengubah nama file dari "${args.oldName}" menjadi "${args.newName.trim()}" ${currentFolder ? `di dalam folder "${currentFolder}" ` : ""}pada menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
         });
       }
     },
@@ -350,7 +350,7 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
         user_id: profile!.userId,
         username: profile!.username,
         action: "MOVE",
-        details: `Memindahkan file ke folder "${args.newTitle.trim()}" di menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
+        details: `Memindahkan file ${currentFolder ? `dari folder "${currentFolder}" ` : ""}ke folder "${args.newTitle.trim()}" pada menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
       });
     },
     onSuccess: () => {
@@ -412,7 +412,7 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
           user_id: profile!.userId,
           username: profile!.username,
           action: "DELETE",
-          details: `Memindahkan file "${row.file_name}" ke sampah di menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
+          details: `Memindahkan file "${row.file_name}" ${currentFolder ? `dari folder "${currentFolder}" ` : ""}ke sampah pada menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
         });
       }
     },
@@ -444,7 +444,7 @@ export function DocumentManager({ menu, division }: { menu: MenuKey; division: D
       user_id: profile!.userId,
       username: profile!.username,
       action: mode === "download" ? "DOWNLOAD" : "VIEW",
-      details: `${mode === "download" ? "Mengunduh" : "Membuka"} file "${row.file_name}" di menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
+      details: `${mode === "download" ? "Mengunduh" : "Membuka"} file "${row.file_name}" ${currentFolder ? `di dalam folder "${currentFolder}" ` : ""}pada menu ${menuLabel(menu)} (${divisionLabel(effectiveDivision)})`,
     });
     if (mode === "download") {
       window.location.href = data.signedUrl;
@@ -1056,7 +1056,7 @@ function UploadDialog({
             user_id: uploader.id,
             username: uploader.username,
             action: "UPLOAD",
-            details: `Mengunggah file: ${f.name} ke menu ${menuLabel(menu)} (${divisionLabel(division)})`,
+            details: `Mengunggah file "${f.name}" ${defaultTitle ? `ke dalam folder "${defaultTitle}" ` : ""}pada menu ${menuLabel(menu)} (${divisionLabel(division)})`,
           });
         }
       }
