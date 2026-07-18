@@ -1033,6 +1033,15 @@ function UploadDialog({
         if (oversized) {
           throw new Error(`Ukuran file "${oversized.name}" melebihi batas maksimal 50MB.`);
         }
+
+        const allowedExtensions = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".png", ".jpg", ".jpeg", ".zip"];
+        const invalidFile = files.find(f => {
+          const ext = f.name.substring(f.name.lastIndexOf(".")).toLowerCase();
+          return !allowedExtensions.includes(ext);
+        });
+        if (invalidFile) {
+          throw new Error(`Tipe file "${invalidFile.name}" tidak diizinkan. Ekstensi file yang membahayakan sistem (seperti .exe, .html, .bat) otomatis diblokir.`);
+        }
         
         for (const f of files) {
           const safeName = f.name.replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -1155,9 +1164,11 @@ function UploadDialog({
               id="file"
               ref={inputRef}
               type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.zip"
               onChange={(e) => {
                 if (e.target.files) {
                   const selectedFiles = Array.from(e.target.files);
+                  
                   const oversized = selectedFiles.find(f => f.size > 50 * 1024 * 1024);
                   if (oversized) {
                     toast.error(`Ukuran file melebihi 50MB`, { description: `File "${oversized.name}" tidak dapat diproses.` });
@@ -1165,6 +1176,20 @@ function UploadDialog({
                     setFiles([]);
                     return;
                   }
+
+                  const allowedExtensions = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".png", ".jpg", ".jpeg", ".zip"];
+                  const invalidFile = selectedFiles.find(f => {
+                    const ext = f.name.substring(f.name.lastIndexOf(".")).toLowerCase();
+                    return !allowedExtensions.includes(ext);
+                  });
+                  
+                  if (invalidFile) {
+                    toast.error(`Tipe file tidak valid`, { description: `File "${invalidFile.name}" ditolak demi keamanan sistem.` });
+                    if (inputRef.current) inputRef.current.value = "";
+                    setFiles([]);
+                    return;
+                  }
+
                   setFiles(selectedFiles);
                 } else {
                   setFiles([]);
