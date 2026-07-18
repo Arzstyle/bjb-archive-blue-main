@@ -44,7 +44,7 @@ function DashboardPage() {
       }
 
       if (error) throw error;
-      if (!data) return { totalFiles: 0, totalFolders: 0, size: 0, latest: null, byMenu: {} };
+      if (!data) return { totalFiles: 0, totalFolders: 0, size: 0, latest: null, byMenu: {} as Record<string, number> };
       const totalFiles = data.filter((d) => d.mime_type !== "folder").length;
       const totalFolders = data.filter((d) => d.mime_type === "folder").length;
       const size = data.reduce((s, d) => s + Number(d.file_size ?? 0), 0);
