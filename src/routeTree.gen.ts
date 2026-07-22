@@ -15,7 +15,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTrashRouteImport } from './routes/_authenticated/trash'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedActivityLogRouteImport } from './routes/_authenticated/activity-log'
+import { Route as AuthenticatedTemplatesIndexRouteImport } from './routes/_authenticated/templates.index'
 import { Route as ApiPublicSeedRouteImport } from './routes/api/public/seed'
+import { Route as AuthenticatedTemplatesSerahTerimaRouteImport } from './routes/_authenticated/templates.serah-terima'
+import { Route as AuthenticatedTemplatesAkadRouteImport } from './routes/_authenticated/templates.akad'
 import { Route as AuthenticatedDocsMenuRouteImport } from './routes/_authenticated/docs.$menu'
 
 const AuthRoute = AuthRouteImport.update({
@@ -48,11 +51,29 @@ const AuthenticatedActivityLogRoute =
     path: '/activity-log',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTemplatesIndexRoute =
+  AuthenticatedTemplatesIndexRouteImport.update({
+    id: '/templates/',
+    path: '/templates/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicSeedRoute = ApiPublicSeedRouteImport.update({
   id: '/api/public/seed',
   path: '/api/public/seed',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTemplatesSerahTerimaRoute =
+  AuthenticatedTemplatesSerahTerimaRouteImport.update({
+    id: '/templates/serah-terima',
+    path: '/templates/serah-terima',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTemplatesAkadRoute =
+  AuthenticatedTemplatesAkadRouteImport.update({
+    id: '/templates/akad',
+    path: '/templates/akad',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDocsMenuRoute = AuthenticatedDocsMenuRouteImport.update({
   id: '/docs/$menu',
   path: '/docs/$menu',
@@ -66,7 +87,10 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/trash': typeof AuthenticatedTrashRoute
   '/docs/$menu': typeof AuthenticatedDocsMenuRoute
+  '/templates/akad': typeof AuthenticatedTemplatesAkadRoute
+  '/templates/serah-terima': typeof AuthenticatedTemplatesSerahTerimaRoute
   '/api/public/seed': typeof ApiPublicSeedRoute
+  '/templates/': typeof AuthenticatedTemplatesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -75,7 +99,10 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/trash': typeof AuthenticatedTrashRoute
   '/docs/$menu': typeof AuthenticatedDocsMenuRoute
+  '/templates/akad': typeof AuthenticatedTemplatesAkadRoute
+  '/templates/serah-terima': typeof AuthenticatedTemplatesSerahTerimaRoute
   '/api/public/seed': typeof ApiPublicSeedRoute
+  '/templates': typeof AuthenticatedTemplatesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,7 +113,10 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/trash': typeof AuthenticatedTrashRoute
   '/_authenticated/docs/$menu': typeof AuthenticatedDocsMenuRoute
+  '/_authenticated/templates/akad': typeof AuthenticatedTemplatesAkadRoute
+  '/_authenticated/templates/serah-terima': typeof AuthenticatedTemplatesSerahTerimaRoute
   '/api/public/seed': typeof ApiPublicSeedRoute
+  '/_authenticated/templates/': typeof AuthenticatedTemplatesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,7 +127,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/trash'
     | '/docs/$menu'
+    | '/templates/akad'
+    | '/templates/serah-terima'
     | '/api/public/seed'
+    | '/templates/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -106,7 +139,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/trash'
     | '/docs/$menu'
+    | '/templates/akad'
+    | '/templates/serah-terima'
     | '/api/public/seed'
+    | '/templates'
   id:
     | '__root__'
     | '/'
@@ -116,7 +152,10 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/trash'
     | '/_authenticated/docs/$menu'
+    | '/_authenticated/templates/akad'
+    | '/_authenticated/templates/serah-terima'
     | '/api/public/seed'
+    | '/_authenticated/templates/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -170,12 +209,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActivityLogRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/templates/': {
+      id: '/_authenticated/templates/'
+      path: '/templates'
+      fullPath: '/templates/'
+      preLoaderRoute: typeof AuthenticatedTemplatesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/seed': {
       id: '/api/public/seed'
       path: '/api/public/seed'
       fullPath: '/api/public/seed'
       preLoaderRoute: typeof ApiPublicSeedRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/templates/serah-terima': {
+      id: '/_authenticated/templates/serah-terima'
+      path: '/templates/serah-terima'
+      fullPath: '/templates/serah-terima'
+      preLoaderRoute: typeof AuthenticatedTemplatesSerahTerimaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/templates/akad': {
+      id: '/_authenticated/templates/akad'
+      path: '/templates/akad'
+      fullPath: '/templates/akad'
+      preLoaderRoute: typeof AuthenticatedTemplatesAkadRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/docs/$menu': {
       id: '/_authenticated/docs/$menu'
@@ -192,6 +252,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedTrashRoute: typeof AuthenticatedTrashRoute
   AuthenticatedDocsMenuRoute: typeof AuthenticatedDocsMenuRoute
+  AuthenticatedTemplatesAkadRoute: typeof AuthenticatedTemplatesAkadRoute
+  AuthenticatedTemplatesSerahTerimaRoute: typeof AuthenticatedTemplatesSerahTerimaRoute
+  AuthenticatedTemplatesIndexRoute: typeof AuthenticatedTemplatesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -199,6 +262,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedTrashRoute: AuthenticatedTrashRoute,
   AuthenticatedDocsMenuRoute: AuthenticatedDocsMenuRoute,
+  AuthenticatedTemplatesAkadRoute: AuthenticatedTemplatesAkadRoute,
+  AuthenticatedTemplatesSerahTerimaRoute:
+    AuthenticatedTemplatesSerahTerimaRoute,
+  AuthenticatedTemplatesIndexRoute: AuthenticatedTemplatesIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -213,3 +280,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

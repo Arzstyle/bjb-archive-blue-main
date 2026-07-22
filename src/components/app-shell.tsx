@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Trash2,
   Activity,
+  FileText,
   type LucideIcon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -115,6 +116,22 @@ export function AppShell({ children }: { children: ReactNode }) {
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
             </Link>
+
+            {profile.role !== "admin" && (
+              <Link
+                to="/templates"
+                onClick={() => setMobileOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors mt-1",
+                  pathname.startsWith("/templates")
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "hover:bg-sidebar-accent",
+                )}
+              >
+                <FileText className="h-4 w-4" />
+                Template Formulir
+              </Link>
+            )}
 
             <div className="mt-4 mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider opacity-60">
               Menu Berkas

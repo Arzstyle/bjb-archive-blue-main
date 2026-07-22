@@ -32,3 +32,6 @@ dist-ssr
 *.sw?
 .env
 
+
+# File Seed (Kredensial Rahasia)
+src/routes/api/public/seed.ts
